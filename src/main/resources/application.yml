@@ -1,2 +1,8 @@
 server:
   port: 8081
+mpesa:
+  daraja:
+    consumer-key: bmFWJ6qq6xIFcxWEKpH5v51d1y0818G4
+    consumer-secret: DEW7l8S2gLpB0Lex
+    grant-type: client_credentials
+    oauth-endpoint: https://sandbox.safaricom.co.ke/oauth/v1/generate
