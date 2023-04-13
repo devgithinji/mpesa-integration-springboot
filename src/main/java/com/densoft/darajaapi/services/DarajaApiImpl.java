@@ -2,16 +2,19 @@ package com.densoft.darajaapi.services;
 
 import com.densoft.darajaapi.config.MpesaConfiguration;
 import com.densoft.darajaapi.dtos.AccessTokenResponse;
+import com.densoft.darajaapi.dtos.RegisterUrlRequest;
+import com.densoft.darajaapi.dtos.RegisterUrlResponse;
 import com.densoft.darajaapi.utils.HelperUtility;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.*;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
-import okhttp3.OkHttpClient;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import static com.densoft.darajaapi.utils.Constants.*;
 
@@ -44,5 +47,34 @@ public class DarajaApiImpl implements DarajaApi {
             log.error(String.format("Could not get access token, -> %s", exception.getLocalizedMessage()));
             return null;
         }
+    }
+
+    @Override
+    public RegisterUrlResponse registerUrl() {
+        AccessTokenResponse accessTokenResponse = getAccessToken();
+        RegisterUrlRequest registerUrlRequest = new RegisterUrlRequest();
+        registerUrlRequest.setConfirmationURL(mpesaConfiguration.getConfirmationURL());
+        registerUrlRequest.setResponseType(mpesaConfiguration.getResponseType());
+        registerUrlRequest.setShortCode(mpesaConfiguration.getShortCode());
+        registerUrlRequest.setValidationURL(mpesaConfiguration.getValidationURl());
+
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJson(registerUrlRequest)));
+        Request request = new Request.Builder()
+                .url(mpesaConfiguration.getRegisterUrlEndpoint())
+                .post(body)
+                .addHeader("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
+                .build();
+
+        try {
+            Response response = okHttpClient.newCall(request).execute();
+            assert response.body() != null;
+            String bodyString = response.body().string();
+            // System.out.println(bodyString);
+            return objectMapper.readValue(bodyString, RegisterUrlResponse.class);
+        } catch (IOException e) {
+            log.error(String.format("could not register url -> %s", e.getMessage()));
+            return null;
+        }
+
     }
 }

@@ -1,10 +1,12 @@
 package com.densoft.darajaapi.controllers;
 
 import com.densoft.darajaapi.dtos.AccessTokenResponse;
+import com.densoft.darajaapi.dtos.RegisterUrlResponse;
 import com.densoft.darajaapi.services.DarajaApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,5 +22,9 @@ public class MpesaController {
     }
 
     //register url
+    @PostMapping(path = "/register-url", produces = "application/json")
+    public ResponseEntity<RegisterUrlResponse> registerUrl() {
+        return ResponseEntity.ok(darajaApi.registerUrl());
+    }
 
 }
